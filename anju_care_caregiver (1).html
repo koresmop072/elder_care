@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>安居・長者支援平台 Prototype</title>
+<style>
+:root{
+  --yellow:#E7B63F; --yellow-dark:#B98219; --yellow-pale:#FBF3DE;
+  --ink:#30332F; --muted:#777A73; --line:#E8E5DC; --paper:#FAF9F5;
+  --white:#FFFFFF; --green:#4F8064; --green-pale:#EAF2EC;
+  --red:#B84B43; --red-pale:#F8EAE8; --shadow:0 8px 24px rgba(42,40,30,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;background:#EEEDE8;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.phone{width:min(100%,430px);min-height:100vh;margin:0 auto;background:var(--paper);position:relative;box-shadow:0 0 40px rgba(0,0,0,.08);padding-bottom:88px}
+.status{height:30px;background:#DCA638;color:#fff;padding:7px 22px;font-size:12px;font-weight:650;display:flex;justify-content:space-between}
+.topbar{height:58px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;background:#DCA638;color:#fff}
+.brand{font-size:16px;font-weight:750;letter-spacing:.04em}
+.topbar small{font-size:11px;opacity:.9}
+main{padding:22px 20px 26px}
+.page{display:none}.page.active{display:block}
+.eyebrow{font-size:11px;letter-spacing:.12em;color:var(--muted);font-weight:700;text-transform:uppercase}
+h1{font-size:25px;line-height:1.3;margin:5px 0 7px;font-weight:760;letter-spacing:-.03em}
+h2{font-size:17px;margin:0;font-weight:730}
+h3{font-size:14px;margin:0 0 8px}
+p{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+.profile-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:22px}
+.avatar{width:54px;height:54px;border-radius:50%;background:var(--yellow-pale);display:grid;place-items:center;color:var(--yellow-dark);font-size:22px;font-weight:700;border:1px solid #EBD9A8}
+.contact-lines{display:grid;gap:5px;margin-top:10px;font-size:12px;color:var(--muted)}
+.contact-lines span{display:flex;gap:8px;align-items:center}
+.card{background:var(--white);border:1px solid var(--line);border-radius:15px;padding:17px;margin-bottom:13px;box-shadow:var(--shadow)}
+.card.flat{box-shadow:none}
+.metric{display:flex;align-items:center;gap:14px}
+.metric-icon{width:48px;height:48px;flex:0 0 48px;border-radius:12px;background:var(--yellow-pale);display:grid;place-items:center;color:var(--yellow-dark);font-size:23px}
+.metric-label{font-size:12px;color:var(--muted);margin-bottom:3px}
+.metric-value{font-size:28px;font-weight:780;letter-spacing:-.04em}
+.metric-note{font-size:11px;color:var(--muted);margin-top:3px}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:22px 1px 10px}
+.text-link{border:0;background:none;color:var(--yellow-dark);font-weight:700;font-size:12px;padding:5px}
+.next-date{font-size:23px;font-weight:780;margin:7px 0 12px;letter-spacing:-.03em}
+.pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:6px;font-size:11px;font-weight:700;background:var(--yellow-pale);color:#936514}
+.pill.green{background:var(--green-pale);color:var(--green)}
+.pill.red{background:var(--red-pale);color:var(--red)}
+.action-row{display:flex;gap:10px;margin-top:13px}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:10px;padding:12px 14px;font-weight:700;font-size:13px}
+.btn.primary{background:var(--yellow);border-color:var(--yellow);color:#352A14}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:white}
+.btn.outline-yellow{border-color:#E6C979;color:#946919;background:#FFFCF4}
+.btn.block{width:100%}
+.btn:active,.nav button:active{transform:scale(.98)}
+.two-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.action-tile{border:1px solid var(--line);background:#fff;border-radius:13px;padding:14px 10px;text-align:left;min-height:88px}
+.action-tile .ico{font-size:21px;margin-bottom:8px;color:var(--yellow-dark)}
+.action-tile strong{display:block;font-size:13px}
+.action-tile small{font-size:11px;color:var(--muted)}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,430px);height:76px;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 5px max(7px,env(safe-area-inset-bottom));z-index:5}
+.nav button{border:0;background:transparent;color:#88877F;font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.nav button .navico{font-size:20px;line-height:1.1}
+.nav button.active{color:#9B6B12;font-weight:750}
+.nav button.active .navico{background:var(--yellow-pale);border-radius:9px;padding:5px 11px}
+.page-title{margin-bottom:18px}
+.list-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.list-row:last-child{border-bottom:0;padding-bottom:0}
+.check{width:22px;height:22px;border:1.5px solid #C9C5B9;border-radius:6px;display:grid;place-items:center;flex:none;color:white}
+.check.done{background:var(--green);border-color:var(--green)}
+.row-copy{flex:1}.row-copy strong{display:block;font-size:13px;margin-bottom:3px}.row-copy small{font-size:11px;color:var(--muted)}
+.progress{height:7px;background:#EEECE5;border-radius:20px;overflow:hidden;margin:12px 0 7px}
+.progress span{display:block;height:100%;width:40%;background:var(--yellow);border-radius:20px}
+.notice{padding:12px 13px;border-radius:10px;background:var(--green-pale);color:var(--green);font-size:12px;line-height:1.55;margin:12px 0}
+.notice.warn{background:var(--yellow-pale);color:#8C641B}
+.notice.alert{background:var(--red-pale);color:var(--red)}
+.form-field{margin:13px 0}.form-field label{display:block;font-size:12px;font-weight:700;margin-bottom:6px}
+.form-field input,.form-field select,.form-field textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:12px;background:#fff;color:var(--ink);outline:none}
+.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--yellow-dark)}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:15px 0;border-bottom:1px solid var(--line);font-size:13px}
+.setting-row:last-child{border:0}
+.switch{width:42px;height:24px;border:0;border-radius:20px;background:#D8D6CE;padding:3px}
+.switch:after{content:"";display:block;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s}
+.switch.on{background:var(--green)}.switch.on:after{transform:translateX(18px)}
+.empty-state{text-align:center;padding:34px 15px}.empty-state .big{font-size:34px;color:var(--yellow-dark);margin-bottom:12px}
+.bottom-space{height:10px}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(25,25,22,.42);z-index:10;align-items:flex-end;justify-content:center}
+.modal-backdrop.show{display:flex}
+.modal{width:min(100%,430px);background:var(--paper);border-radius:18px 18px 0 0;padding:22px 20px 30px;max-height:85vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.close{border:0;background:#EEECE5;border-radius:50%;width:30px;height:30px;font-size:17px}
+.toast{position:fixed;bottom:91px;left:50%;transform:translate(-50%,15px);background:#30332F;color:#fff;padding:11px 16px;border-radius:9px;font-size:12px;opacity:0;pointer-events:none;transition:.25s;z-index:20;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(min-width:600px){body{padding:24px 0}.phone{min-height:850px;border-radius:24px;overflow:hidden}.nav{position:absolute;bottom:0;border-radius:0 0 24px 24px}.modal-backdrop{align-items:center}.modal{border-radius:18px}}
+</style>
+
+<style>
+:root{--yellow:#E9B83F;--blue:#4B91B8;--blue-soft:#E6F2F8;--green:#39836B;--green-soft:#E5F3ED;--coral:#D96D59;--coral-soft:#FBEAE6;--purple:#7866A8;--purple-soft:#F0ECF8}
+body{background:#E8ECEB}
+.phone{background:#F5F7F6}
+.card{border-radius:17px;border-color:#DCE4E2;box-shadow:0 3px 12px #253d5b08}
+.metric-icon{border-radius:14px}
+.btn{min-height:46px;font-size:14px}
+.btn.primary{background:#F2C14E;border-color:#F2C14E}
+.quick-color{display:inline-grid;place-items:center;width:39px;height:39px;border-radius:12px;margin-bottom:8px;font-size:21px}
+.lamp-scene{border-radius:16px;padding:16px;color:white;min-height:185px;position:relative;overflow:hidden;margin:10px 0}
+.lamp-scene.day{background:#4F9BC1}.lamp-scene.dusk{background:#D78B68}.lamp-scene.night{background:#263B60}
+.lamp-sun{position:absolute;right:24px;top:38px;font-size:55px}
+.lamp-bottom{position:absolute;bottom:14px;left:16px;right:16px;display:flex;justify-content:space-between;align-items:end}
+.lamp-tabs{display:flex;gap:7px;margin:10px 0 14px}
+.lamp-tabs button{flex:1;border:1px solid #DCE4E2;background:white;border-radius:9px;padding:10px 4px;font-weight:750;color:#52616A}
+.lamp-tabs button.active{background:#FFF4D4;border-color:#E8C96F;color:#79540D}
+.care-note{background:#E6F2F8;border:1px solid #D1E3ED;border-radius:13px;padding:13px;margin:10px 0;font-size:12px;line-height:1.6;color:#286789}
+.large-text{font-size:18px}
+</style>
+
+</head>
+<body>
+<div class="phone">
+  <div class="status"><span>09:30</span><span>▮▮▮　◖　▰</span></div>
+  <header class="topbar"><div class="brand">安居 CARE</div>
+    <small>照顧者版</small></header>
+  <main>
+    <section class="page active" id="home">
+      <div class="profile-head">
+        <div>
+          <div class="eyebrow">GOOD MORNING</div>
+          <h1>你好，Chloris</h1>
+          <div class="contact-lines">
+            <span>☎　6312 3456</span><span>⌖　澳門祐漢新村第一街 88 號</span>
+          </div>
+        </div>
+        <div class="avatar">C</div>
+      </div>
+
+      <div class="card">
+        <div class="metric">
+          <div class="metric-icon">♧</div>
+          <div><div class="metric-label">最後一次開燈</div><div class="metric-value">18:05</div><div class="metric-note">昨日 · 系統正常接收訊號</div></div>
+          <span class="pill green" style="margin-left:auto">正常</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">NEXT HOME VISIT</div>
+        <div class="section-head" style="margin:6px 0 0"><h2>下一次家居檢查</h2><span class="pill">預約確認</span></div>
+        <div class="next-date">2026 / 11 / 07</div>
+        <p>星期六　上午 10:00 – 11:00</p>
+        <div class="action-row">
+          <button class="btn outline-yellow" style="flex:1" onclick="openModal('booking')">預約／更改服務</button>
+          <button class="btn" style="flex:1" onclick="showPage('reports')">查看檢查報告　→</button>
+        </div>
+      </div>
+
+      <div class="section-head"><h2>常用服務</h2><span class="eyebrow">QUICK ACCESS</span></div>
+      <div class="two-actions">
+        <button class="action-tile" onclick="showPage('checks')"><div class="ico">☑</div><strong>家居安全檢查</strong><small>查看檢查項目</small></button>
+        <button class="action-tile" onclick="showPage('bulb')"><div class="ico">♧</div><strong>智能燈泡狀態</strong><small>查看裝置紀錄</small></button>
+        <button class="action-tile" onclick="showPage('reports')"><div class="ico">▤</div><strong>檢查報告</strong><small>查看過往紀錄</small></button>
+        <button class="action-tile" onclick="openModal('booking')"><div class="ico">▦</div><strong>預約服務</strong><small>安排上門檢查</small></button>
+      </div>
+
+      <div class="section-head"><h2>需要協助？</h2></div>
+      <div class="action-row">
+        <button class="btn block" onclick="openModal('feedback')">✉　意見反映</button>
+        <button class="btn primary block" onclick="openModal('help')">☎　聯絡支援</button>
+      </div>
+      <div class="bottom-space"></div>
+    </section>
+
+    <section class="page" id="bulb">
+      <div class="page-title"><div class="eyebrow">SMART LIGHT MONITOR</div><h1>智能燈泡紀錄</h1><p>以日夜畫面顯示日常燈光活動訊號。</p></div>
+      <div class="lamp-scene day" id="lampScene">
+        <div style="font-size:14px;font-weight:800" id="sceneTitle">日間 · 天色明亮</div>
+        <div style="font-size:11px;opacity:.9;margin-top:4px" id="sceneCaption">上午時段的燈光活動</div>
+        <div class="lamp-sun" id="sceneIcon"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></div>
+        <div class="lamp-bottom"><div><div style="font-size:11px;opacity:.9">最後活動紀錄</div><div style="font-size:30px;font-weight:850" id="sceneTime">06:42</div></div><span style="font-size:12px;background:#ffffff2c;padding:8px;border-radius:8px" id="sceneState">已偵測到開燈</span></div>
+      </div>
+      <div class="lamp-tabs"><button id="dayTab" class="active" onclick="setScene('day')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg> 日間</button><button id="duskTab" onclick="setScene('dusk')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M17 18a5 5 0 0 0-10 0M12 2v7M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1M16 5l-4 4-4-4"/></svg> 黃昏</button><button id="nightTab" onclick="setScene('night')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg> 夜間</button></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h2>今日活動概覽</h2><span class="pill green">訊號正常</span></div>
+        <div class="metric"><div class="metric-icon" style="background:#E6F2F8;color:#327DA4">☼</div><div><div class="metric-label">今日偵測活動</div><div class="metric-value">6 次</div><div class="metric-note">最後同步：今日 09:12</div></div></div>
+        <div class="progress"><span style="width:68%;background:#4B91B8"></span></div>
+        <p>清晨　上午　中午　黃昏　晚上　深夜</p>
+      </div>
+      <div class="section-head"><h2>最近活動紀錄</h2><span class="eyebrow">TODAY</span></div>
+      <div class="card flat">
+        <div class="list-row"><div class="metric-icon" style="background:#FFF4D4;color:#966400;width:38px;height:38px;flex-basis:38px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></div><div class="row-copy"><strong>開燈</strong><small>今日 06:42 · 清晨</small></div><span class="pill green">已記錄</span></div>
+        <div class="list-row"><div class="metric-icon" style="background:#E6F2F8;color:#327DA4;width:38px;height:38px;flex-basis:38px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></div><div class="row-copy"><strong>關燈</strong><small>昨日 22:16 · 夜間</small></div><span class="pill green">已記錄</span></div>
+        <div class="list-row"><div class="metric-icon" style="background:#FBEAE6;color:#B45143;width:38px;height:38px;flex-basis:38px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M17 18a5 5 0 0 0-10 0M12 2v7M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1M16 5l-4 4-4-4"/></svg></div><div class="row-copy"><strong>開燈</strong><small>昨日 18:05 · 黃昏</small></div><span class="pill green">已記錄</span></div>
+      </div>
+      <div class="notice">燈光活動只是一項生活訊號，不能單憑開關燈紀錄判斷長者是否安全。若長時間沒有紀錄，系統應先確認裝置狀態，再按照顧安排聯絡家屬或支援人員。</div>
+    </section>
+
+    <section class="page" id="checks">
+      <div class="page-title"><div class="eyebrow">HOME SAFETY</div><h1>家居安全檢查</h1><p>定期檢視家中環境，減低日常生活風險。</p></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center"><h2>居家安全清單</h2><span class="pill" id="checkCount">2 / 5 已完成</span></div>
+        <div class="progress"><span id="progressBar" style="width:40%"></span></div>
+        <p>可點選項目更新檢查狀態（展示用）。</p>
+        <div id="checkList">
+          <div class="list-row" onclick="toggleCheck(this)"><span class="check done">✓</span><div class="row-copy"><strong>走廊及通道保持暢通</strong><small>避免雜物阻礙行走</small></div></div>
+          <div class="list-row" onclick="toggleCheck(this)"><span class="check done">✓</span><div class="row-copy"><strong>浴室地面防滑</strong><small>檢查防滑墊及地面乾爽程度</small></div></div>
+          <div class="list-row" onclick="toggleCheck(this)"><span class="check"></span><div class="row-copy"><strong>扶手及支撐設施穩固</strong><small>浴室、床邊及常用位置</small></div></div>
+          <div class="list-row" onclick="toggleCheck(this)"><span class="check"></span><div class="row-copy"><strong>照明充足及開關方便</strong><small>夜間通道及床邊照明</small></div></div>
+          <div class="list-row" onclick="toggleCheck(this)"><span class="check"></span><div class="row-copy"><strong>常用物品容易拿取</strong><small>避免需要攀高或彎腰取物</small></div></div>
+        </div>
+      </div>
+      <div class="notice">正式檢查由受訓服務人員按實際家居環境進行；此清單只作介面示範。</div>
+      <button class="btn primary block" onclick="toast('檢查進度已更新（展示模式）')">儲存檢查進度</button>
+    </section>
+
+    <section class="page" id="reports">
+      <div class="page-title"><div class="eyebrow">SERVICE RECORDS</div><h1>檢查報告</h1><p>查看上門服務及家居安全評估紀錄。</p></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center"><h2>最近一次檢查</h2><span class="pill green">已完成</span></div>
+        <div class="next-date" style="font-size:20px">2026 / 10 / 07</div>
+        <p>服務人員：家居安全支援隊</p>
+        <div class="list-row"><div class="row-copy"><strong>浴室防滑設施</strong><small>建議加設防滑墊</small></div><span class="pill">需跟進</span></div>
+        <div class="list-row"><div class="row-copy"><strong>走廊照明</strong><small>狀況良好</small></div><span class="pill green">正常</span></div>
+        <div class="list-row"><div class="row-copy"><strong>家具及通道</strong><small>狀況良好</small></div><span class="pill green">正常</span></div>
+        <div class="action-row"><button class="btn block" onclick="toast('展示版本：報告下載功能尚未連接')">下載報告</button><button class="btn primary block" onclick="openModal('booking')">預約跟進</button></div>
+      </div>
+      <div class="card flat"><div class="eyebrow">PREVIOUS RECORDS</div><div class="list-row"><div class="row-copy"><strong>2026 / 07 / 07</strong><small>定期家居安全檢查</small></div><span class="pill green">已完成</span></div><div class="list-row"><div class="row-copy"><strong>2026 / 04 / 07</strong><small>首次家居環境評估</small></div><span class="pill green">已完成</span></div></div>
+    </section>
+
+    <section class="page" id="profile">
+      <div class="page-title"><div class="eyebrow">ACCOUNT</div><h1>長者及個人資料</h1><p>查看你自己及所照顧長者的資料。</p></div>
+      <div class="card">
+        <div class="profile-head" style="margin-bottom:6px"><div><h2>我的資料</h2><p style="margin-top:4px">照顧者</p></div><div class="avatar">C</div></div>
+        <div class="form-field"><label>姓名</label><input value="Chloris"></div>
+        <div class="form-field"><label>聯絡電話</label><input value="6688 9012"></div>
+        <button class="btn primary block" onclick="toast('資料已儲存（展示模式）')">儲存我的資料</button>
+      </div>
+      <div class="section-head"><h2>長者資料</h2><span class="eyebrow">ELDERS</span></div>
+      <div class="card">
+        <div class="list-row" style="padding-top:0">
+          <div class="avatar" id="elAvatar" style="width:46px;height:46px;font-size:19px">陳</div>
+          <div class="row-copy"><small>目前查看</small><strong id="elTitle" style="margin:2px 0 0;font-size:15px">陳婆婆</strong></div>
+          <button class="btn outline-yellow" onclick="openElders()">選擇長者　›</button>
+        </div>
+        <div class="form-field"><label>姓名</label><input id="elName"></div>
+        <div class="form-field"><label>聯絡電話</label><input id="elPhone"></div>
+        <div class="form-field"><label>緊急聯絡人</label><input id="elEmg"></div>
+        <div class="form-field"><label>緊急聯絡電話</label><input id="elEmgPhone"></div>
+        <button class="btn primary block" onclick="toast('長者資料已儲存（展示模式）')">儲存長者資料</button>
+      </div>
+    </section>
+
+    <section class="page" id="settings">
+      <div class="page-title"><div class="eyebrow">PREFERENCES</div><h1>設定</h1><p>調整通知及介面顯示。</p></div>
+      <div class="card">
+        <h2>通知設定</h2>
+        <div class="setting-row"><span>裝置異常通知</span><button class="switch on" onclick="toggleSwitch(this)" aria-label="切換通知"></button></div>
+        <div class="setting-row"><span>服務預約提醒</span><button class="switch on" onclick="toggleSwitch(this)" aria-label="切換提醒"></button></div>
+        <div class="setting-row"><span>定期安全檢查提醒</span><button class="switch on" onclick="toggleSwitch(this)" aria-label="切換提醒"></button></div>
+      </div>
+      <div class="card">
+        <h2>無障礙設定</h2>
+        <div class="setting-row"><span>較大字體</span><button class="switch" onclick="toggleSwitch(this);document.body.classList.toggle('large-text')" aria-label="切換大字體"></button></div>
+        <div class="setting-row"><span>高對比顯示</span><button class="switch" onclick="toggleSwitch(this)" aria-label="切換高對比"></button></div>
+      </div>
+      <div class="card flat"><div class="setting-row"><span>服務條款及私隱政策</span><span>›</span></div><div class="setting-row"><span>關於安居 CARE</span><span>›</span></div><div class="setting-row"><span>版本</span><span style="color:var(--muted)">Prototype 1.0</span></div></div>
+    </section>
+  </main>
+
+  <nav class="nav">
+    <button class="active" data-page="home" onclick="showPage('home',this)"><span class="navico">⌂</span>首頁</button>
+    <button data-page="bulb" onclick="showPage('bulb',this)"><span class="navico">♧</span>智能燈泡</button>
+    <button data-page="checks" onclick="showPage('checks',this)"><span class="navico">☑</span>家居檢查</button>
+    <button data-page="profile" onclick="showPage('profile',this)"><span class="navico">♙</span>資料</button>
+    <button data-page="settings" onclick="showPage('settings',this)"><span class="navico">⚙</span>設定</button>
+  </nav>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head"><h2 id="modalTitle">預約服務</h2><button class="close" onclick="closeModal()">×</button></div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const elders=[
+ {n:'陳婆婆',c:'陳',p:'6312 3456',a:'祐漢新村',e:'陳先生（兒子）',ep:'6666 1234'},
+ {n:'李伯伯',c:'李',p:'6288 7741',a:'黑沙環新街',e:'李小姐（女兒）',ep:'6555 8890'},
+ {n:'黃婆婆',c:'黃',p:'6377 2209',a:'筷子基北街',e:'黃先生（孫）',ep:'6611 3045'}
+];
+function pickElder(i){
+  const e=elders[i];
+  document.getElementById('elAvatar').textContent=e.c;
+  document.getElementById('elTitle').textContent=e.n;
+  document.getElementById('elName').value=e.n;
+  document.getElementById('elPhone').value=e.p;
+  document.getElementById('elEmg').value=e.e;
+  document.getElementById('elEmgPhone').value=e.ep;
+}
+function openElders(){
+  document.getElementById('modalTitle').textContent='選擇長者';
+  document.getElementById('modalContent').innerHTML='<p>請選擇要查看資料的長者（示範名單）。</p><div class="card flat" style="margin-top:12px">'+
+   elders.map((e,i)=>`<div class="list-row" onclick="pickElder(${i});closeModal()" style="cursor:pointer"><div class="avatar" style="width:42px;height:42px;font-size:17px">${e.c}</div><div class="row-copy"><strong>${e.n}</strong><small>${e.a}</small></div><span>›</span></div>`).join('')+'</div>';
+  document.getElementById('modalBackdrop').classList.add('show');
+}
+pickElder(0);
+const pageTitles={home:'首頁',bulb:'智能燈泡',checks:'家居安全檢查',reports:'檢查報告',profile:'我的資料',settings:'設定'};
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const target=document.getElementById(id); if(target)target.classList.add('active');
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleCheck(row){
+  const mark=row.querySelector('.check');mark.classList.toggle('done');mark.textContent=mark.classList.contains('done')?'✓':'';
+  const total=document.querySelectorAll('#checkList .check').length;
+  const done=document.querySelectorAll('#checkList .check.done').length;
+  document.getElementById('checkCount').textContent=done+' / '+total+' 已完成';
+  document.getElementById('progressBar').style.width=(done/total*100)+'%';
+}
+function toggleSwitch(btn){btn.classList.toggle('on')}
+function toast(message){
+  const el=document.getElementById('toast');el.textContent=message;el.classList.add('show');
+  clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.classList.remove('show'),2200);
+}
+const modalData={
+ booking:{title:'預約家居服務',html:`<p>選擇希望安排的服務時段，提交後會顯示模擬確認訊息。</p>
+ <div class="form-field"><label>服務類型</label><select id="serviceType"><option>定期家居安全檢查</option><option>首次家居環境評估</option><option>改善項目跟進</option><option>智能裝置檢查</option></select></div>
+ <div class="form-field"><label>預約日期</label><input id="serviceDate" type="date" value="2026-11-07"></div>
+ <div class="form-field"><label>方便時段</label><select id="serviceTime"><option>上午 09:00 – 12:00</option><option>下午 14:00 – 17:00</option></select></div>
+ <div class="form-field"><label>備註（選填）</label><textarea id="serviceNote" rows="2" placeholder="例如：需要協助檢查浴室扶手"></textarea></div>
+ <button class="btn primary block" onclick="submitBooking()">提交預約</button>`},
+ feedback:{title:'意見反映',html:`<p>歡迎提供使用意見或服務上的需要。</p><div class="form-field"><label>反映類別</label><select><option>服務意見</option><option>介面使用問題</option><option>其他建議</option></select></div><div class="form-field"><label>內容</label><textarea rows="4" placeholder="請輸入內容"></textarea></div><button class="btn primary block" onclick="closeModal();toast('意見已提交（展示模式）')">提交</button>`},
+ help:{title:'聯絡支援',html:`<div class="notice warn">此按鈕在正式版本應連接指定支援機構或緊急聯絡人；目前只作介面示範。</div><div class="card flat"><h3>支援聯絡電話</h3><div class="metric-value" style="font-size:24px">6312 3456</div><p>服務時間：星期一至五 09:00 – 18:00</p></div><button class="btn primary block" onclick="closeModal();toast('展示模式：尚未撥出電話')">確認</button>`}
+};
+function openModal(type){
+  const data=modalData[type];document.getElementById('modalTitle').textContent=data.title;
+  document.getElementById('modalContent').innerHTML=data.html;
+  document.getElementById('modalBackdrop').classList.add('show');
+}
+function closeModal(){document.getElementById('modalBackdrop').classList.remove('show')}
+function submitBooking(){
+  const date=document.getElementById('serviceDate').value;
+  if(!date){toast('請先選擇預約日期');return}
+  closeModal();toast('預約資料已提交（展示模式）');
+}
+</script>
+
+<script>
+function setScene(mode){
+ const scene=document.getElementById('lampScene');scene.className='lamp-scene '+mode;
+ const data={
+ day:['日間 · 天色明亮','上午時段的燈光活動',`<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`,'06:42','已偵測到開燈'],
+ dusk:['黃昏 · 天色漸暗','傍晚時段的燈光活動',`<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M17 18a5 5 0 0 0-10 0M12 2v7M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1M16 5l-4 4-4-4"/></svg>`,'18:05','已偵測到開燈'],
+ night:['夜間 · 天色已黑','夜間時段的燈光活動',`<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>`,'22:16','已偵測到關燈']
+ }[mode];
+ document.getElementById('sceneTitle').textContent=data[0];
+ document.getElementById('sceneCaption').textContent=data[1];
+ document.getElementById('sceneIcon').innerHTML=data[2];
+ document.getElementById('sceneTime').textContent=data[3];
+ document.getElementById('sceneState').textContent=data[4];
+ ['day','dusk','night'].forEach(x=>document.getElementById(x+'Tab').classList.toggle('active',x===mode));
+}
+</script>
+
+</body>
+</html>
